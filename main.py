@@ -64,7 +64,7 @@ class Session(threading.Thread):
 
         self.length = length
 
-        self.browser_location = "chromedriver.exe"
+        self.browser_location = ""
         self.browser = webdriver.Chrome(self.browser_location)
         self.browser.maximize_window()
         self.browser.get("https://membean.com/login")
@@ -94,13 +94,19 @@ class Session(threading.Thread):
 
         while time.time() < end_time:
             if len(self.browser.find_elements_by_id("next-btn")) > 0:
+                time.sleep(4)
+                answer = self.browser.find_element_by_class_name("answer")
+                answer.click()
                 next_button = self.browser.find_element_by_id("next-btn")
                 next_button.click()
             elif len(self.browser.find_elements_by_id("full-answer")) > 0:
                 answer_field = self.browser.find_element_by_id("full-answer")
-                answer = answer_field.get_attribute("innerHTML")[1:]
+                answer = answer_field.get_attribute("innerHTML")
                 choice = self.browser.find_element_by_id("choice")
-                choice.send_keys(answer)
+                if len(self.browser.find_elements_by_id("word-hint")) > 0:
+                    choice.send_keys(answer[1:])
+                else:
+                    choice.send_keys(answer)
             elif len(self.browser.find_elements_by_class_name("answer")) > 0:
                 answer = self.browser.find_element_by_class_name("answer")
                 answer.click()
